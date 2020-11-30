@@ -14,7 +14,7 @@ class BookViewSet(viewsets.ModelViewSet):
 @api_view(['GET', 'POST'])
 def books(req):
   if req.method == 'GET':
-    books = Book.objects.all()
+    books = Book.objects.order_by('-author').filter(active=True)
     serializer = BookSerializer(books, many=True)
     return Response(serializer.data)
 
