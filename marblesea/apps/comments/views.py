@@ -10,7 +10,8 @@ class CommentViewSet(viewsets.ModelViewSet):
   queryset = Comment.objects.all()
   serializer_class = CommentSerializer
 
-@api_view(['GET', 'POST', 'PUT', 'DELETE'])
+# comments relation with books
+@api_view(['GET', 'POST'])
 def comments(req, pk):
   try:
     book = Book.objects.get(pk=pk) # get the book from id
@@ -18,6 +19,7 @@ def comments(req, pk):
   except Book.DoesNotExist:
     return Response({'exception': 'Comments not found for the book by Id {}'.format(pk)}, status=status.HTTP_404_NOT_FOUND)
 
+  # requests
   if req.method == 'GET':
     serializer = CommentSerializer(comments, many=True)
     return Response(serializer.data, status=status.HTTP_200_OK)
@@ -35,8 +37,36 @@ def comments(req, pk):
     else:
       return Response({"exception": "Failed to create comment"}, status=status.HTTP_400_BAD_REQUEST)
 
+@api_view(['GET'])
+def comments_all(req):
+  try:
+    comments = Comment.objects.all()
+    serializer = CommentSerializer(comments, many=True)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+  except Comment.DoesNotExist:
+    return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+# only comments
+@api_view(['GET', 'PUT', 'DELETE'])
+def comment(req, pk):
+  try:
+    comment = Comment.objects.get(pk=pk) # get all the comments
+  except Comment.DoesNotExist:
+    return Response({'exception': 'Comment not found by Id {}'.format(pk)}, status=status.HTTP_404_NOT_FOUND)
+
+  # requests
+  if req.method == 'GET':
+    serializer = CommentSerializer(comment)
+    return Response(serializer.data, status=status.HTTP_200_OK)
+  
   if req.method == 'PUT':
-    return
+    serializer = CommentSerializer(comment, data=req.data, partial=True)
+    if serializer.is_valid():
+      serializer.save()
+      return Response(serializer.data, status=status.HTTP_201_CREATED)
+    else:
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
   if req.method == 'DELETE':
-    return
+    comment.delete()
+    return Response({'message': 'Comment by Id "{}" was successfully deleted'.format(pk)})

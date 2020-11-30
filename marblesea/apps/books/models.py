@@ -1,8 +1,6 @@
 from django.db import models
-# from marblesea.apps.comments.models import Comment
 
 class Book(models.Model):
-  # comments = models.ForeignKey(Comment, on_delete=models.DO_NOTHING)
   title = models.CharField(max_length=200, unique=True)
   author = models.CharField(max_length=200)
   pages = models.IntegerField(default=0, blank=True)
