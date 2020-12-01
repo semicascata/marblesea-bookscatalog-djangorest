@@ -2,7 +2,8 @@ from .models import Book
 from .serializers import BookSerializer
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated, IsAdminUser
 
 # viewset
 class BookViewSet(viewsets.ModelViewSet):
@@ -11,8 +12,10 @@ class BookViewSet(viewsets.ModelViewSet):
   serializer_class = BookSerializer
 
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated,])
 def books(req):
   if req.method == 'GET':
+    print(req.user)
     books = Book.objects.order_by('-author').filter(active=True)
     serializer = BookSerializer(books, many=True)
     return Response(serializer.data)
@@ -26,6 +29,7 @@ def books(req):
       return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated, IsAdminUser])
 def books_edit(req, pk):
   try:
     book = Book.objects.get(pk=pk)
