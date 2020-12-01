@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     # thirdparty apps
     'rest_framework',
     'corsheaders',
+    'rest_framework_swagger',
 
     # local apps
     'marblesea.apps.books',
@@ -122,6 +123,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 # restframework
 REST_FRAMEWORK = { 
+    'DEFAULT_SCHEMA_CLASS': 'rest_framework.schemas.coreapi.AutoSchema',
     'DEFAULT_AUTHENTICATION_CLASSES': [ 
         'rest_framework_simplejwt.authentication.JWTAuthentication', 
     ], 
