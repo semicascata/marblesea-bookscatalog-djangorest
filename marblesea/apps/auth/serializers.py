@@ -29,3 +29,7 @@ class RegisterSerializer(serializers.ModelSerializer):
       'last_name': {'required': True}
     }
 
+class UserSerializer(serializers.ModelSerializer):
+  class Meta:
+    model = User
+    fields = ('username', 'email', 'id')

@@ -11,22 +11,32 @@ class BookViewSet(viewsets.ModelViewSet):
   queryset = Book.objects.all()
   serializer_class = BookSerializer
 
-@api_view(['GET', 'POST'])
-@permission_classes([IsAuthenticated,])
+@api_view(['GET',])
+# @permission_classes([IsAuthenticated,])
 def books(req):
-  if req.method == 'GET':
-    print(req.user)
-    books = Book.objects.order_by('-author').filter(active=True)
-    serializer = BookSerializer(books, many=True)
-    return Response(serializer.data)
+  books = Book.objects.order_by('-author').filter(active=True)
+  serializer = BookSerializer(books, many=True)
+  return Response(serializer.data)
 
-  if req.method == 'POST':
-    serializer = BookSerializer(data=req.data)
-    if serializer.is_valid():
-      serializer.save()
-      return Response(serializer.data, status=status.HTTP_201_CREATED)
-    else:
-      return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated,])
+def add_book(req):
+  data = {
+    'title': req.data['title'],
+    'author': req.data['author'],
+    'pages': req.data['pages'],
+    'photo': req.data['photo'],
+    'resume': req.data['resume'],
+    'publisher_user': req.user.pk,
+  }
+
+  serializer = BookSerializer(data=data)
+  if serializer.is_valid():
+    serializer.save()
+    return Response(serializer.data, status=status.HTTP_201_CREATED)
+  else:
+    return Response(serializer.data, status=status.HTTP_400_BAD_REQUEST)
+
 
 @api_view(['GET', 'PUT', 'DELETE'])
 @permission_classes([IsAuthenticated, IsAdminUser])

@@ -1,10 +1,11 @@
 from .models import Comment
 from rest_framework import serializers
-# from marblesea.apps.books.serializers import BookSerializer
+from django.contrib.auth.models import User 
+from marblesea.apps.auth.serializers import UserSerializer
 
 class CommentSerializer(serializers.ModelSerializer):
-  # book = BookSerializer(read_only=True)
-  
+  user = UserSerializer(User)
+
   class Meta:
     model = Comment
-    fields = ('book', 'text', 'pk')
+    fields = ('book', 'user', 'text', 'pk')

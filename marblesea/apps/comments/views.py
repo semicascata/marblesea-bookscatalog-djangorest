@@ -2,8 +2,9 @@ from .models import Comment
 from .serializers import CommentSerializer
 from rest_framework import viewsets, status
 from rest_framework.response import Response
-from rest_framework.decorators import api_view
+from rest_framework.decorators import api_view, permission_classes
 from marblesea.apps.books.models import Book
+from rest_framework.permissions import IsAuthenticated, AllowAny
 
 # viewset
 class CommentViewSet(viewsets.ModelViewSet):
@@ -12,6 +13,7 @@ class CommentViewSet(viewsets.ModelViewSet):
 
 # comments relation with books
 @api_view(['GET', 'POST'])
+@permission_classes([IsAuthenticated,])
 def comments(req, pk):
   try:
     book = Book.objects.get(pk=pk) # get the book from id
@@ -25,8 +27,10 @@ def comments(req, pk):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
   if req.method == 'POST':
+    print(req.user)
     data = {
       'book': book.pk,
+      'user': req.user,
       'text': req.data['text'],
     }
     serializer = CommentSerializer(data=data)
@@ -38,6 +42,7 @@ def comments(req, pk):
       return Response({"exception": "Failed to create comment"}, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
+@permission_classes([AllowAny,])
 def comments_all(req):
   try:
     comments = Comment.objects.all()
@@ -48,6 +53,7 @@ def comments_all(req):
 
 # only comments
 @api_view(['GET', 'PUT', 'DELETE'])
+@permission_classes([IsAuthenticated,])
 def comment(req, pk):
   try:
     comment = Comment.objects.get(pk=pk) # get all the comments

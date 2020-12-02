@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.auth.models import User  
 
 class Book(models.Model):
   title = models.CharField(max_length=200, unique=True)
@@ -8,5 +9,6 @@ class Book(models.Model):
   resume = models.TextField(blank=True)
   created_at = models.DateTimeField(auto_now_add=True)
   active = models.BooleanField(default=True)
+  publisher_user = models.ForeignKey(User, on_delete=models.DO_NOTHING, related_name='publisher_user')  
   def __str__(self):
     return self.title

@@ -18,8 +18,9 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    # urls
     path('admin/', admin.site.urls),
-    path('books/', include('marblesea.apps.books.urls')),
+    path('', include('marblesea.apps.books.urls')),
     path('comments/', include('marblesea.apps.comments.urls')),
     path('auth/', include('marblesea.apps.auth.urls')),
 
