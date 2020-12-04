@@ -23,6 +23,7 @@ urlpatterns = [
     path('', include('marblesea.apps.books.urls')),
     path('comments/', include('marblesea.apps.comments.urls')),
     path('auth/', include('marblesea.apps.auth.urls')),
+    path('lists/', include('marblesea.apps.lists.urls')),
 
     # doc - swagger
     path('', schema_view.with_ui('swagger', cache_timeout=0)),
