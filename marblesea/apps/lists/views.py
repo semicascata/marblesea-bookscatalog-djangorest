@@ -1,12 +1,11 @@
 from .models import List
-from .serializers import ListSerializer, ListRetrieveSerializer
+from .serializers import ListSerializer, AddListSerializer
 from rest_framework import viewsets, status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated, IsAdminUser
 from marblesea.apps.books.models import Book
 from marblesea.apps.books.serializers import BookSerializer
-import json
 
 # viewset
 class ListViewSet(viewsets.ModelViewSet):
@@ -14,7 +13,7 @@ class ListViewSet(viewsets.ModelViewSet):
     if self.action == 'my_books':
       return ListSerializer
     if self.action == 'add_list':
-      return ListRetrieveSerializer
+      return AddListSerializer
   # queryset = List.objects.all()
   # serializer_class = ListSerializer
 
@@ -47,7 +46,7 @@ def add_list(req, pk):
     'user': user
   }
 
-  serializer = ListRetrieveSerializer(data=data)
+  serializer = AddListSerializer(data=data)
   if serializer.is_valid():
     serializer.save()
 
@@ -58,19 +57,31 @@ def add_list(req, pk):
 @api_view(['PUT', 'DELETE'])
 @permission_classes([IsAuthenticated,])
 def edit_list(req, pk):
-  if req.method == 'PUT':
+  try:
     # book_list by id
-    book_list = List.objects.get(book_id=pk)
+    book_list = List.objects.get(pk=pk)
+  except List.DoesNotExist:
+    return Response({'exception': 'List not found by Id {}'.format(pk)}, status=status.HTTP_404_NOT_FOUND)
+
+  if req.method == 'PUT':
+    if book_list.read == True:
+      data = {
+        'read': False,
+      }
+    else:
+      data = {
+        'read': True,
+      }
 
     # data changed
-    # data = { 'read': 'READ' }
-    serializer = ListSerializer(book_list, data=req.data, partial=True)
+    serializer = ListSerializer(book_list, data=data, partial=True)
 
     if serializer.is_valid():
       serializer.save()
-      return Response({'detail': 'Listing book changed, Id: {}'.format(pk)}, status=status.HTTP_200_OK)
+      return Response(serializer.data, status=status.HTTP_200_OK)
     else:
       return Response({'exception': 'Failed to update book list by Id {}'.format(pk)}, status=status.HTTP_400_BAD_REQUEST)
 
   if req.method == 'DELETE':
-    return
+    book_list.delete()
+    return Response({'message': 'List by Id "{}" successfully deleted'.format(pk)}, status=status.HTTP_200_OK)

@@ -13,9 +13,9 @@ class ListSerializer(serializers.ModelSerializer):
   book = BookSerializer(Book, read_only=True)
   class Meta:
     model = List
-    fields = ('user', 'book',)
+    fields = ('pk', 'user', 'book', 'read')
 
-class ListRetrieveSerializer(serializers.ModelSerializer):
+class AddListSerializer(serializers.ModelSerializer):
   class Meta:
     model = List
     fields = ('user', 'book',)
