@@ -27,10 +27,10 @@ def comments(req, pk):
     return Response(serializer.data, status=status.HTTP_200_OK)
 
   if req.method == 'POST':
-    print(req.user)
+    print(req.user.id)
     data = {
       'book': book.pk,
-      'user': req.user,
+      'user': req.user.id,
       'text': req.data['text'],
     }
     serializer = CommentSerializer(data=data)
@@ -39,7 +39,7 @@ def comments(req, pk):
       serializer.save()
       return Response(serializer.data, status=status.HTTP_201_CREATED)
     else:
-      return Response({"exception": "Failed to create comment"}, status=status.HTTP_400_BAD_REQUEST)
+      return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['GET'])
 @permission_classes([AllowAny,])
@@ -56,7 +56,10 @@ def comments_all(req):
 @permission_classes([IsAuthenticated,])
 def comment(req, pk):
   try:
+    user = req.user
     comment = Comment.objects.get(pk=pk) # get all the comments
+    if user != comment.user:
+      return Response({'exception': 'You are not the owner of this comment'}, status=status.HTTP_401_UNAUTHORIZED)
   except Comment.DoesNotExist:
     return Response({'exception': 'Comment not found by Id {}'.format(pk)}, status=status.HTTP_404_NOT_FOUND)
 
@@ -66,6 +69,7 @@ def comment(req, pk):
     return Response(serializer.data, status=status.HTTP_200_OK)
   
   if req.method == 'PUT':
+    user = req.user
     serializer = CommentSerializer(comment, data=req.data, partial=True)
     if serializer.is_valid():
       serializer.save()
