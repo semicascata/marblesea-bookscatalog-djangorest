@@ -14,7 +14,7 @@ class ListViewSet(viewsets.ModelViewSet):
       return ListSerializer
     if self.action == 'add_list':
       return AddListSerializer
-  # queryset = List.objects.all()
+  queryset = List.objects.all()
   # serializer_class = ListSerializer
 
 @api_view(['GET'])
